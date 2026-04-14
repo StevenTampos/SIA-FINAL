@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Company Tasker | Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="sidebar">
+        <h2><span style="color:var(--accent)">●</span> Company Tasker</h2>
+        <ul class="nav-links">
+            <li class="active" onclick="showSection('task-section')">Overview</li>
+            <li onclick="showSection('user-section')">Team Members</li>
+        </ul>
+        <div class="user-profile">
+            <div style="font-size: 0.85rem; color: #94a3b8">Signed in as:</div>
+            <div id="user-display" style="font-weight: 600">Admin User</div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <header>
+            <h1>Workflow Overview</h1>
+            <p class="subtitle">Manage system tasks and view real-time assignments.</p>
+        </header>
+
+        <div style="display: flex; gap: 20px; margin-bottom: 30px;">
+            <div class="card" style="flex: 1; margin-bottom: 0; padding: 1rem 1.5rem;">
+                <span style="color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase;">Unassigned Tasks</span>
+                <div style="font-size: 1.5rem; font-weight: 700;" id="stat-unassigned">0</div>
+            </div>
+            <div class="card" style="flex: 1; margin-bottom: 0; padding: 1rem 1.5rem;">
+                <span style="color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase;">Active Team</span>
+                <div style="font-size: 1.5rem; font-weight: 700;" id="stat-users">0</div>
+            </div>
+        </div>
+
+        <section id="task-section">
+            <div class="card">
+                <h3>Create New Task</h3>
+                <div style="margin-top: 15px; display: flex; gap: 10px;">
+                    <input type="text" id="task-title" placeholder="What needs to be done?" style="flex-grow: 2;">
+                    <select id="task-skill-req" style="flex-grow: 1;">
+                        <option value="Node.js">Node.js</option>
+                        <option value="C">C Language</option>
+                        <option value="Documentation">Documentation</option>
+                    </select>
+                    <button class="btn btn-primary" onclick="createTask()">Create Task</button>
+                </div>
+            </div>
+
+            <div class="task-grid" id="task-container">
+                <div class="task-card">
+                    <div>
+                        <span class="tag">Required: Node.js</span>
+                        <h3 style="margin-bottom: 10px;">Setup API Gateway</h3>
+                        <p style="font-size: 0.9rem; color: var(--text-muted);">Route traffic between User and Task services.</p>
+                    </div>
+                    <button class="btn btn-primary" style="margin-top: 20px; width: 100%;" onclick="autoAssign(1)">Auto-Assign Task</button>
+                </div>
+            </div>
+        </section>
+    </main>
+</body>
+</html>
