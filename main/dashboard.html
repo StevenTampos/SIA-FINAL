@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Company Tasker | Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <nav class="sidebar">
+        <h2>
+            <span class="logo-dot"></span>
+            Company Tasker
+        </h2>
+        <ul class="nav-links">
+            <li class="active" onclick="showSection('task-section', this)">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+                    <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+                </svg>
+                Overview
+            </li>
+            <li onclick="showSection('user-section', this)">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                    <circle cx="9" cy="7" r="4"/>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
+                </svg>
+                Team Members
+            </li>
+        </ul>
+        <div class="user-profile">
+            <div style="font-size: 0.75rem; color: #a78bfa; margin-bottom: 4px;">Signed in as</div>
+            <div id="user-display" style="font-weight: 600; color: #fff; font-size: 0.9rem;">Admin User</div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+
+        <!-- Tasks Tab -->
+        <section id="task-section" class="tab-section">
+            <header>
+                <h1>Workflow Overview ✦</h1>
+                <p class="subtitle">Create tasks and assign them to your team.</p>
+            </header>
+
+            <div class="stats-row">
+                <div class="stat-card purple">
+                    <div class="stat-label">Unassigned Tasks</div>
+                    <div class="stat-value" id="stat-unassigned">0</div>
+                </div>
+                <div class="stat-card blue">
+                    <div class="stat-label">Active Team</div>
+                    <div class="stat-value" id="stat-users">0</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 style="margin-bottom: 14px;">✦ Create New Task</h3>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <input type="text" id="task-title" placeholder="What needs to be done?" style="flex: 2; min-width: 180px;">
+                    <select id="task-skill-req" style="flex: 1; min-width: 130px;">
+                        <option value="Node.js">Node.js</option>
+                        <option value="C">C Language</option>
+                        <option value="Documentation">Documentation</option>
+                    </select>
+                    <button class="btn btn-primary" onclick="createTask()">+ Create Task</button>
+                </div>
+            </div>
+
+            <div class="section-header">
+                <span class="section-title">Active Tasks</span>
+            </div>
+
+            <div class="task-grid" id="task-container">
+                <div class="empty-state" id="task-empty">
+                    <div class="empty-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="32" height="32">
+                            <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+                            <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+                        </svg>
+                    </div>
+                    <p>No tasks yet — create one above!</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Team Members Tab -->
+        <section id="user-section" class="tab-section" style="display: none;">
+            <header>
+                <h1>Team Members ✦</h1>
+                <p class="subtitle">Add and manage your team's skill sets.</p>
+            </header>
+
+            <div class="card">
+                <h3 style="margin-bottom: 14px;">✦ Add Team Member</h3>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <input type="text" id="user-name" placeholder="Full name" style="flex: 2; min-width: 160px;">
+                    <select id="user-skill" style="flex: 1; min-width: 130px;">
+                        <option value="Node.js">Node.js</option>
+                        <option value="C">C Language</option>
+                        <option value="Documentation">Documentation</option>
+                    </select>
+                    <button class="btn btn-primary" onclick="addUser()">+ Add Member</button>
+                </div>
+            </div>
+
+            <div class="section-header">
+                <span class="section-title">Team</span>
+            </div>
+
+            <div id="user-container" class="user-list">
+                <div class="empty-state" id="user-empty">
+                    <div class="empty-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="32" height="32">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                            <circle cx="9" cy="7" r="4"/>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
+                        </svg>
+                    </div>
+                    <p>No team members yet — add one above!</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        function showSection(id, el) {
+            document.querySelectorAll('.tab-section').forEach(s => s.style.display = 'none');
+            document.getElementById(id).style.display = 'block';
+            document.querySelectorAll('.nav-links li').forEach(li => li.classList.remove('active'));
+            if (el) el.classList.add('active');
+        }
+
+        function createTask() {
+            const title = document.getElementById('task-title').value.trim();
+            const skill = document.getElementById('task-skill-req').value;
+            if (!title) return;
+
+            const empty = document.getElementById('task-empty');
+            if (empty) empty.remove();
+
+            const container = document.getElementById('task-container');
+            const card = document.createElement('div');
+            card.className = 'task-card';
+            card.innerHTML = `
+                <div>
+                    <span class="tag">Required: ${skill}</span>
+                    <h3>${title}</h3>
+                </div>
+                <button class="btn btn-primary" style="margin-top: 18px; width: 100%;">Auto-Assign Task</button>
+            `;
+            container.appendChild(card);
+
+            const el = document.getElementById('stat-unassigned');
+            el.textContent = parseInt(el.textContent) + 1;
+            document.getElementById('task-title').value = '';
+        }
+
+        function addUser() {
+            const name = document.getElementById('user-name').value.trim();
+            const skill = document.getElementById('user-skill').value;
+            if (!name) return;
+
+            const empty = document.getElementById('user-empty');
+            if (empty) empty.remove();
+
+            const initials = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+            const container = document.getElementById('user-container');
+            const row = document.createElement('div');
+            row.className = 'user-row';
+            row.innerHTML = `
+                <div class="user-avatar">${initials}</div>
+                <div class="user-info">
+                    <div class="user-row-name">${name}</div>
+                    <span class="tag" style="margin-bottom: 0;">${skill}</span>
+                </div>
+                <button class="btn btn-ghost" onclick="removeUser(this)">Remove</button>
+            `;
+            container.appendChild(row);
+
+            const el = document.getElementById('stat-users');
+            el.textContent = parseInt(el.textContent) + 1;
+            document.getElementById('user-name').value = '';
+        }
+
+        function removeUser(btn) {
+            btn.closest('.user-row').remove();
+            const el = document.getElementById('stat-users');
+            el.textContent = Math.max(0, parseInt(el.textContent) - 1);
+        }
+    </script>
+
+</body>
+</html>
