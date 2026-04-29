@@ -30,7 +30,7 @@ app.put('/api/tasks/:id/auto-assign', async (req, res) => {
         const skillNeeded = tasks[0].required_skill;
 
         // Call User Service on port 3001
-        const userRes = await axios.get(`https://tas.dcism.org/user_service/users/match/${skillNeeded}`);
+        const userRes = await axios.get(`https://tas.dcism.org/api/users/match/${skillNeeded}`);
         const bestUser = userRes.data[0];
 
         if (!bestUser) return res.status(404).json({ message: "No qualified members found" });

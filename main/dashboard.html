@@ -127,72 +127,7 @@
 
     </main>
 
-    <script src="app.js">
-        function showSection(id, el) {
-            document.querySelectorAll('.tab-section').forEach(s => s.style.display = 'none');
-            document.getElementById(id).style.display = 'block';
-            document.querySelectorAll('.nav-links li').forEach(li => li.classList.remove('active'));
-            if (el) el.classList.add('active');
-        }
-
-        function createTask() {
-            const title = document.getElementById('task-title').value.trim();
-            const skill = document.getElementById('task-skill-req').value;
-            if (!title) return;
-
-            const empty = document.getElementById('task-empty');
-            if (empty) empty.remove();
-
-            const container = document.getElementById('task-container');
-            const card = document.createElement('div');
-            card.className = 'task-card';
-            card.innerHTML = `
-                <div>
-                    <span class="tag">Required: ${skill}</span>
-                    <h3>${title}</h3>
-                </div>
-                <button class="btn btn-primary" style="margin-top: 18px; width: 100%;">Auto-Assign Task</button>
-            `;
-            container.appendChild(card);
-
-            const el = document.getElementById('stat-unassigned');
-            el.textContent = parseInt(el.textContent) + 1;
-            document.getElementById('task-title').value = '';
-        }
-
-        function addUser() {
-            const name = document.getElementById('user-name').value.trim();
-            const skill = document.getElementById('user-skill').value;
-            if (!name) return;
-
-            const empty = document.getElementById('user-empty');
-            if (empty) empty.remove();
-
-            const initials = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
-            const container = document.getElementById('user-container');
-            const row = document.createElement('div');
-            row.className = 'user-row';
-            row.innerHTML = `
-                <div class="user-avatar">${initials}</div>
-                <div class="user-info">
-                    <div class="user-row-name">${name}</div>
-                    <span class="tag" style="margin-bottom: 0;">${skill}</span>
-                </div>
-                <button class="btn btn-ghost" onclick="removeUser(this)">Remove</button>
-            `;
-            container.appendChild(row);
-
-            const el = document.getElementById('stat-users');
-            el.textContent = parseInt(el.textContent) + 1;
-            document.getElementById('user-name').value = '';
-        }
-
-        function removeUser(btn) {
-            btn.closest('.user-row').remove();
-            const el = document.getElementById('stat-users');
-            el.textContent = Math.max(0, parseInt(el.textContent) - 1);
-        }
-    </script>
+    <script src="app.js"></script>
 
 </body>
 </html>

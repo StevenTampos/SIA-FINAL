@@ -20,7 +20,7 @@ const db = mysql.createPool({
 });
 
 // GET: Returns users with a specific skill (Ordered by least active tasks)
-app.get('/user_service/users/match/:skill', async (req, res) => {
+app.get('/api/users/match/:skill', async (req, res) => {
     try {
         const [rows] = await db.query(
             'SELECT id, name FROM users WHERE skill = ? ORDER BY active_tasks ASC LIMIT 1',
