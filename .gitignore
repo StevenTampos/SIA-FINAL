@@ -1,2 +1,5 @@
 node_modules
+task_service/node_modules
+user_service/node_modules
 .env
+.htaccess

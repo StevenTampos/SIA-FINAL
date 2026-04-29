@@ -44,15 +44,22 @@ async function loadUsers() {
         const users = await response.json();
         const container = document.getElementById('user-container');
         
-        if (users.length > 0) document.getElementById('user-empty').style.display = 'none';
+        // FIX: Only hide the empty state if it hasn't been deleted yet
+        const emptyState = document.getElementById('user-empty');
+        if (users.length > 0 && emptyState) {
+            emptyState.style.display = 'none';
+        }
         
         container.innerHTML = users.map(user => `
-            <div class="user-row">
-                <div class="user-avatar">${user.name.charAt(0)}</div>
-                <div class="user-info">
-                    <div class="user-row-name">${user.name}</div>
-                    <span class="tag">${user.skill}</span>
+            <div class="user-row" style="display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; align-items: center; gap: 14px;">
+                    <div class="user-avatar">${user.name.charAt(0)}</div>
+                    <div class="user-info">
+                        <div class="user-row-name">${user.name}</div>
+                        <span class="tag">${user.skill}</span>
+                    </div>
                 </div>
+                <button class="btn btn-ghost" onclick="deleteUser(${user.id})" style="color: #ef4444; border-color: #fca5a5;">Delete</button>
             </div>
         `).join('');
     } catch (err) {
@@ -90,12 +97,19 @@ async function loadTasks() {
         const tasks = await response.json();
         const container = document.getElementById('task-container');
         
-        if (tasks.length > 0) document.getElementById('task-empty').style.display = 'none';
+        // FIX: Only hide the empty state if it hasn't been deleted yet
+        const emptyState = document.getElementById('task-empty');
+        if (tasks.length > 0 && emptyState) {
+            emptyState.style.display = 'none';
+        }
 
         container.innerHTML = tasks.map(task => `
             <div class="task-card ${task.status}">
-                <div>
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
                     <span class="tag">Required: ${task.required_skill}</span>
+                    <button class="btn btn-ghost" onclick="deleteTask(${task.id})" style="padding: 2px 8px; font-size: 0.75rem; color: #ef4444; border: none;">✖</button>
+                </div>
+                <div>
                     <h3>${task.title}</h3>
                     <p>Status: ${task.status}</p>
                 </div>
@@ -155,5 +169,26 @@ async function autoAssign(taskId) {
         alert("Integration Error: Check if both services are running");
         btn.textContent = originalText;
         btn.disabled = false;
+    }
+}
+
+// --- DELETE LOGIC ---
+async function deleteUser(id) {
+    if (!confirm("Are you sure you want to remove this team member?")) return;
+    try {
+        await fetch(`${USER_SERVICE_URL}/users/${id}`, { method: 'DELETE' });
+        loadDashboardData();
+    } catch (err) {
+        alert("Failed to delete user");
+    }
+}
+
+async function deleteTask(id) {
+    if (!confirm("Are you sure you want to delete this task?")) return;
+    try {
+        await fetch(`${TASK_SERVICE_URL}/tasks/${id}`, { method: 'DELETE' });
+        loadDashboardData();
+    } catch (err) {
+        alert("Failed to delete task");
     }
 }
