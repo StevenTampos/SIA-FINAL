@@ -1,6 +1,8 @@
 // Configuration: Update these if your school server uses different ports
-const USER_SERVICE_URL = 'https://tas.dcism.org/user_service/api';
-const TASK_SERVICE_URL = 'https://tas.dcism.org/task_service/api';
+const USER_SERVICE_URL = '/user_service/api';
+const TASK_SERVICE_URL = '/task_service/api';
+
+// Leave the rest of the file exactly the same...
 
 document.addEventListener('DOMContentLoaded', () => {
     loadDashboardData();

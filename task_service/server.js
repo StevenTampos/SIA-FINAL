@@ -7,9 +7,9 @@ require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 
 const app = express();
 app.use(cors({
-    origin: ['http://127.0.0.1:5500', 'http://localhost:5500', 'https://tas.dcism.org'],
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization']
+    origin: 'http://127.0.0.1:5500',
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type']
 }));
 app.use(express.json());
 
