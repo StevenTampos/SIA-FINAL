@@ -22,6 +22,12 @@
                 </svg>
                 Overview
             </li>
+            <li onclick="showSection('project-section', this)">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                </svg>
+                Projects
+            </li>
             <li onclick="showSection('user-section', this)">
                 <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
@@ -42,7 +48,7 @@
         <!-- Tasks Tab -->
         <section id="task-section" class="tab-section">
             <header>
-                <h1>Workflow Overview ✦</h1>
+                <h1>Workflow Overview &#10022;</h1>
                 <p class="subtitle">Create tasks and assign them to your team.</p>
             </header>
 
@@ -55,19 +61,42 @@
                     <div class="stat-label">Active Team</div>
                     <div class="stat-value" id="stat-users">0</div>
                 </div>
+                <div class="stat-card green">
+                    <div class="stat-label">Completion Rate</div>
+                    <div class="stat-value" id="stat-completion">0%</div>
+                    <div class="progress-bar mini">
+                        <div class="progress-fill" id="stat-completion-bar" style="width: 0%"></div>
+                    </div>
+                </div>
+                <div class="stat-card orange">
+                    <div class="stat-label">Team Velocity</div>
+                    <div class="stat-value" id="stat-velocity">0</div>
+                    <div class="progress-bar mini">
+                        <div class="progress-fill" id="stat-velocity-bar" style="width: 0%"></div>
+                    </div>
+                </div>
             </div>
 
             <div class="card">
-                <h3 style="margin-bottom: 14px;">✦ Create New Task</h3>
-                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <h3 style="margin-bottom: 14px;">&#10022; Create New Task</h3>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px;">
                     <input type="text" id="task-title" placeholder="What needs to be done?" style="flex: 2; min-width: 180px;">
-                    <select id="task-skill-req" style="flex: 1; min-width: 130px;">
-                        <option value="Node.js">Node.js</option>
-                        <option value="C">C Language</option>
-                        <option value="Documentation">Documentation</option>
+                    <select id="task-type" style="flex: 1; min-width: 100px;" onchange="toggleParentSelector()">
+                        <option value="task">Task</option>
+                        <option value="project">Project</option>
                     </select>
-                    <button class="btn btn-primary" onclick="createTask()">+ Create Task</button>
+                    <select id="task-parent" style="flex: 1; min-width: 130px; display: none;">
+                        <option value="">-- No Parent --</option>
+                    </select>
+                    <select id="task-skill-req" style="flex: 1; min-width: 130px;">
+                        <option value="">Select skill...</option>
+                    </select>
                 </div>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px;">
+                    <textarea id="task-description" placeholder="Task Description" style="flex: 1; min-width: 200px; min-height: 60px; resize: vertical;"></textarea>
+                    <textarea id="task-specifications" placeholder="Detailed Specifications" style="flex: 1; min-width: 200px; min-height: 60px; resize: vertical;"></textarea>
+                </div>
+                <button class="btn btn-primary" onclick="createTask()">+ Create Task</button>
             </div>
 
             <div class="section-header">
@@ -82,7 +111,44 @@
                             <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
                         </svg>
                     </div>
-                    <p>No tasks yet — create one above!</p>
+                    <p>No tasks yet &mdash; create one above!</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Projects Tab -->
+        <section id="project-section" class="tab-section" style="display: none;">
+            <header>
+                <h1>Projects &#10022;</h1>
+                <p class="subtitle">Track progress across all projects and sprints.</p>
+            </header>
+
+            <div class="stats-row">
+                <div class="stat-card purple">
+                    <div class="stat-label">Active Projects</div>
+                    <div class="stat-value" id="stat-active-projects">0</div>
+                </div>
+                <div class="stat-card green">
+                    <div class="stat-label">Avg. Completion</div>
+                    <div class="stat-value" id="stat-avg-completion">0%</div>
+                    <div class="progress-bar mini">
+                        <div class="progress-fill" id="stat-avg-bar" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-header">
+                <span class="section-title">Project Progress</span>
+            </div>
+
+            <div class="project-list" id="project-container">
+                <div class="empty-state" id="project-empty">
+                    <div class="empty-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="32" height="32">
+                            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                        </svg>
+                    </div>
+                    <p>No projects yet &mdash; create one in the Overview tab!</p>
                 </div>
             </div>
         </section>
@@ -90,21 +156,27 @@
         <!-- Team Members Tab -->
         <section id="user-section" class="tab-section" style="display: none;">
             <header>
-                <h1>Team Members ✦</h1>
+                <h1>Team Members &#10022;</h1>
                 <p class="subtitle">Add and manage your team's skill sets.</p>
             </header>
 
             <div class="card">
-                <h3 style="margin-bottom: 14px;">✦ Add Team Member</h3>
-                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <h3 style="margin-bottom: 14px;">&#10022; Add Team Member</h3>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px;">
                     <input type="text" id="user-name" placeholder="Full name" style="flex: 2; min-width: 160px;">
-                    <select id="user-skill" style="flex: 1; min-width: 130px;">
-                        <option value="Node.js">Node.js</option>
-                        <option value="C">C Language</option>
-                        <option value="Documentation">Documentation</option>
-                    </select>
-                    <button class="btn btn-primary" onclick="addUser()">+ Add Member</button>
+                    <input type="text" id="user-avatar" placeholder="Avatar URL (optional)" style="flex: 2; min-width: 160px;">
                 </div>
+                <div style="margin-bottom: 10px;">
+                    <label style="font-size: 0.85rem; color: var(--text-muted); font-weight: 500;">Skills:</label>
+                    <div class="skill-selector" id="user-skill-selector">
+                        <!-- Skills populated by JS -->
+                    </div>
+                </div>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px;">
+                    <input type="text" id="new-skill-name" placeholder="Or add a new skill..." style="flex: 1; min-width: 160px;">
+                    <button class="btn btn-ghost" onclick="addNewSkill()">+ Add Skill</button>
+                </div>
+                <button class="btn btn-primary" onclick="addUser()">+ Add Member</button>
             </div>
 
             <div class="section-header">
@@ -120,12 +192,32 @@
                             <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
                         </svg>
                     </div>
-                    <p>No team members yet — add one above!</p>
+                    <p>No team members yet &mdash; add one above!</p>
                 </div>
             </div>
         </section>
 
     </main>
+
+    <!-- Task Detail Modal -->
+    <div id="task-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <span class="tag" id="modal-type-tag">Task</span>
+                    <h2 id="modal-title-display">Task Details</h2>
+                </div>
+                <button class="btn btn-ghost" onclick="closeTaskModal()" style="padding: 6px 10px;">&#10006;</button>
+            </div>
+            <div class="modal-body" id="modal-body">
+                <!-- Content injected by JS -->
+            </div>
+            <div class="modal-footer" id="modal-footer">
+                <button class="btn btn-primary" id="modal-edit-btn" onclick="toggleEditMode()">Edit</button>
+                <button class="btn btn-ghost" id="modal-cancel-btn" onclick="closeTaskModal()" style="display: none;">Cancel</button>
+            </div>
+        </div>
+    </div>
 
     <script src="app.js"></script>
 
