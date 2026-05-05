@@ -255,6 +255,20 @@ input::placeholder, textarea::placeholder { color: #c4b9ed; }
 
 .btn-primary:active { transform: translateY(0); }
 
+.btn-success {
+    background: linear-gradient(135deg, var(--accent-green), #34d399);
+    color: white;
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+}
+
+.btn-success:hover {
+    background: linear-gradient(135deg, var(--accent-green-hover), #10b981);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);
+}
+
+.btn-success:active { transform: translateY(0); }
+
 .btn-ghost {
     background: transparent;
     border: 1.5px solid var(--border);

@@ -34,7 +34,7 @@ async function loadDashboardData() {
     await Promise.all([loadSkills(), loadUsers(), loadTasks()]);
     updateStats();
     populateSkillDropdowns();
-    populateParentSelector();
+    await populateParentSelector();
 }
 
 async function loadSkills() {
@@ -297,7 +297,10 @@ function renderTaskCard(task) {
             ${task.status === 'unassigned' ?
                 `<button class="btn btn-primary" style="margin-top: 14px; width: 100%;"
                  onclick="event.stopPropagation(); autoAssign(${task.id})">Auto-Assign Task</button>` :
-                `<div class="tag ${task.status === 'completed' ? 'success' : 'blue'}" style="width: 100%; text-align: center; margin-top: 14px;">${task.status === 'completed' ? 'Completed' : 'Assigned'}</div>`}
+                task.status === 'assigned' ?
+                `<button class="btn btn-success" style="margin-top: 14px; width: 100%;"
+                 onclick="event.stopPropagation(); completeTask(${task.id})">Mark Complete</button>` :
+                `<div class="tag success" style="width: 100%; text-align: center; margin-top: 14px;">Completed</div>`}
         </div>
     `;
 }
@@ -323,7 +326,7 @@ async function loadProjects() {
                             <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
                         </svg>
                     </div>
-                    <p>No projects yet &mdash; create one in the Overview tab!</p>
+                    <p>No projects yet &mdash; create one above!</p>
                 </div>`;
             return;
         }
@@ -370,7 +373,6 @@ async function createTask() {
     const required_skill = document.getElementById('task-skill-req').value;
     const description = document.getElementById('task-description').value.trim();
     const specifications = document.getElementById('task-specifications').value.trim();
-    const task_type = document.getElementById('task-type').value;
     const parent_id = document.getElementById('task-parent').value;
 
     if (!title) return alert("Enter task title");
@@ -385,21 +387,50 @@ async function createTask() {
                 required_skill,
                 description,
                 specifications,
-                task_type,
+                task_type: 'task',
                 parent_id: parent_id || null
             })
         });
         document.getElementById('task-title').value = '';
         document.getElementById('task-description').value = '';
         document.getElementById('task-specifications').value = '';
-        document.getElementById('task-type').value = 'task';
         document.getElementById('task-parent').value = '';
-        toggleParentSelector();
         await loadTasks();
         await populateParentSelector();
         updateStats();
     } catch (err) {
         alert("Failed to create task in Service B");
+    }
+}
+
+async function createProject() {
+    const title = document.getElementById('project-title').value.trim();
+    const description = document.getElementById('project-description').value.trim();
+    const specifications = document.getElementById('project-specifications').value.trim();
+
+    if (!title) return alert("Enter project title");
+
+    try {
+        await fetch(`${TASK_SERVICE_URL}/tasks`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                title,
+                required_skill: 'project-management',
+                description,
+                specifications,
+                task_type: 'project',
+                parent_id: null
+            })
+        });
+        document.getElementById('project-title').value = '';
+        document.getElementById('project-description').value = '';
+        document.getElementById('project-specifications').value = '';
+        await loadProjects();
+        await populateParentSelector();
+        updateStats();
+    } catch (err) {
+        alert("Failed to create project");
     }
 }
 
@@ -435,6 +466,10 @@ function renderModal() {
     const body = document.getElementById('modal-body');
     const editBtn = document.getElementById('modal-edit-btn');
     const cancelBtn = document.getElementById('modal-cancel-btn');
+
+    // Clean up dynamic complete button
+    const existingCompleteBtn = document.getElementById('modal-complete-btn');
+    if (existingCompleteBtn) existingCompleteBtn.remove();
 
     if (isEditMode) {
         editBtn.textContent = 'Save';
@@ -473,6 +508,16 @@ function renderModal() {
         editBtn.textContent = 'Edit';
         editBtn.onclick = toggleEditMode;
         cancelBtn.style.display = 'none';
+
+        // Show Mark Complete button for assigned tasks
+        if (task.task_type !== 'project' && task.status === 'assigned') {
+            const completeBtn = document.createElement('button');
+            completeBtn.id = 'modal-complete-btn';
+            completeBtn.className = 'btn btn-success';
+            completeBtn.textContent = 'Mark Complete';
+            completeBtn.onclick = () => completeTask(task.id);
+            document.getElementById('modal-footer').insertBefore(completeBtn, editBtn);
+        }
 
         let subtasksHtml = '';
         if (task.task_type === 'project' && task.subtasks) {
@@ -558,6 +603,36 @@ async function saveTaskEdit() {
         updateStats();
     } catch (err) {
         alert("Failed to update task");
+    }
+}
+
+async function completeTask(taskId) {
+    try {
+        const response = await fetch(`${TASK_SERVICE_URL}/tasks/${taskId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: 'completed' })
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ error: 'Unknown server error' }));
+            console.error('completeTask failed:', response.status, errorData);
+            alert(`Failed to mark task as complete: ${errorData.error || response.statusText}`);
+            return;
+        }
+
+        await loadTasks();
+        if (document.getElementById('project-section').style.display !== 'none') {
+            await loadProjects();
+        }
+        updateStats();
+
+        // Refresh modal if it's open for this task
+        if (currentModalTask && currentModalTask.id === taskId) {
+            await openTaskModal(taskId);
+        }
+    } catch (err) {
+        alert("Failed to mark task as complete");
     }
 }
 

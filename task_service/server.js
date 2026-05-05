@@ -134,50 +134,63 @@ app.put('/api/tasks/:id', async (req, res) => {
 
         if (updates.length === 0) return res.status(400).json({ error: "No fields to update" });
 
+        // Fetch current status BEFORE updating so transition logic works correctly
+        let taskBefore = null;
+        const [taskRows] = await db.query('SELECT assigned_user_id, parent_id, status FROM tasks WHERE id = ?', [taskId]);
+        taskBefore = taskRows[0];
+
+        if (!taskBefore) {
+            console.error(`PUT /api/tasks/${taskId}: Task not found`);
+            return res.status(404).json({ error: "Task not found" });
+        }
+
         values.push(taskId);
         await db.query(`UPDATE tasks SET ${updates.join(', ')} WHERE id = ?`, values);
 
         // Handle status transitions
-        if (status !== undefined) {
-            const [task] = await db.query('SELECT assigned_user_id, parent_id, status as current_status FROM tasks WHERE id = ?', [taskId]);
-            const currentStatus = task[0].current_status;
+        if (status !== undefined && taskBefore) {
+            const currentStatus = taskBefore.status;
 
             // Transitioning TO completed
             if (status === 'completed' && currentStatus !== 'completed') {
-                if (task[0].assigned_user_id) {
-                    await db.query('UPDATE users SET active_tasks = GREATEST(active_tasks - 1, 0) WHERE id = ?', [task[0].assigned_user_id]);
+                if (taskBefore.assigned_user_id) {
+                    await db.query('UPDATE users SET active_tasks = GREATEST(active_tasks - 1, 0) WHERE id = ?', [taskBefore.assigned_user_id]);
                 }
             }
             // Transitioning FROM completed
             else if (currentStatus === 'completed' && status !== 'completed') {
-                if (task[0].assigned_user_id) {
-                    await db.query('UPDATE users SET active_tasks = active_tasks + 1 WHERE id = ?', [task[0].assigned_user_id]);
+                if (taskBefore.assigned_user_id) {
+                    await db.query('UPDATE users SET active_tasks = active_tasks + 1 WHERE id = ?', [taskBefore.assigned_user_id]);
                 }
             }
             // Transitioning TO assigned FROM unassigned
             else if (status === 'assigned' && currentStatus === 'unassigned') {
-                if (task[0].assigned_user_id) {
-                    await db.query('UPDATE users SET active_tasks = active_tasks + 1 WHERE id = ?', [task[0].assigned_user_id]);
+                if (taskBefore.assigned_user_id) {
+                    await db.query('UPDATE users SET active_tasks = active_tasks + 1 WHERE id = ?', [taskBefore.assigned_user_id]);
                 }
             }
             // Transitioning FROM assigned TO unassigned
             else if (currentStatus === 'assigned' && status === 'unassigned') {
-                if (task[0].assigned_user_id) {
-                    await db.query('UPDATE users SET active_tasks = GREATEST(active_tasks - 1, 0) WHERE id = ?', [task[0].assigned_user_id]);
+                if (taskBefore.assigned_user_id) {
+                    await db.query('UPDATE users SET active_tasks = GREATEST(active_tasks - 1, 0) WHERE id = ?', [taskBefore.assigned_user_id]);
                 }
             }
 
-            if (task[0].parent_id) {
-                await calculateProjectProgress(task[0].parent_id);
+            if (taskBefore.parent_id) {
+                await calculateProjectProgress(taskBefore.parent_id);
             }
         }
 
         // Get updated task
         const [rows] = await db.query('SELECT * FROM tasks WHERE id = ?', [taskId]);
+        if (!rows[0]) {
+            return res.status(404).json({ error: "Task not found after update" });
+        }
         res.json(rows[0]);
     } catch (err) {
         console.error('Update task error:', err);
-        res.status(500).json({ error: err.message });
+        console.error('Stack:', err.stack);
+        res.status(500).json({ error: err.message, stack: err.stack });
     }
 });
 

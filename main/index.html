@@ -81,11 +81,7 @@
                 <h3 style="margin-bottom: 14px;">&#10022; Create New Task</h3>
                 <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px;">
                     <input type="text" id="task-title" placeholder="What needs to be done?" style="flex: 2; min-width: 180px;">
-                    <select id="task-type" style="flex: 1; min-width: 100px;" onchange="toggleParentSelector()">
-                        <option value="task">Task</option>
-                        <option value="project">Project</option>
-                    </select>
-                    <select id="task-parent" style="flex: 1; min-width: 130px; display: none;">
+                    <select id="task-parent" style="flex: 1; min-width: 130px;">
                         <option value="">-- No Parent --</option>
                     </select>
                     <select id="task-skill-req" style="flex: 1; min-width: 130px;">
@@ -137,6 +133,18 @@
                 </div>
             </div>
 
+            <div class="card">
+                <h3 style="margin-bottom: 14px;">&#10022; Create New Project</h3>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px;">
+                    <input type="text" id="project-title" placeholder="Project name" style="flex: 2; min-width: 200px;">
+                </div>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px;">
+                    <textarea id="project-description" placeholder="Project Description" style="flex: 1; min-width: 200px; min-height: 60px; resize: vertical;"></textarea>
+                    <textarea id="project-specifications" placeholder="Detailed Specifications" style="flex: 1; min-width: 200px; min-height: 60px; resize: vertical;"></textarea>
+                </div>
+                <button class="btn btn-primary" onclick="createProject()">+ Create Project</button>
+            </div>
+
             <div class="section-header">
                 <span class="section-title">Project Progress</span>
             </div>
@@ -148,7 +156,7 @@
                             <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
                         </svg>
                     </div>
-                    <p>No projects yet &mdash; create one in the Overview tab!</p>
+                    <p>No projects yet &mdash; create one above!</p>
                 </div>
             </div>
         </section>
